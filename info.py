@@ -88,14 +88,14 @@ PUBLIC_FILE_CHANNEL = environ.get('PUBLIC_FILE_CHANNEL', '') # Public Channel Us
 
 
 # Links
-GRP_LNK = environ.get('GRP_LNK', 'https://t.me/+SDBvltduRtkyMGM1')
-CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/hd_movies488')
-SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'https://t.me/+SDBvltduRtkyMGM1') # Support Chat Link Without https:// or @
+GRP_LNK = environ.get('GRP_LNK', 'https://t.me/+SDBvltduRtkMGM1')
+CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/hd_moves488')
+SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'https://t.me/+SDBvltdutkyMGM1') # Support Chat Link Without https:// or @
 OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/randeep_singh48')
 
 # True Or False
 AI_SPELL_CHECK = bool(environ.get('AI_SPELL_CHECK', True))
-PM_SEARCH = bool(environ.get('PM_SEARCH', True))
+PM_SEARCH = bool(environ.get('PM_SEARCH', False))
 BUTTON_MODE = bool(environ.get('BUTTON_MODE', False))
 MAX_BTN = bool(environ.get('MAX_BTN', True))
 IS_TUTORIAL = bool(environ.get('IS_TUTORIAL', False))
