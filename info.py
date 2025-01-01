@@ -17,7 +17,7 @@ BOT_TOKEN = environ.get('BOT_TOKEN', "")
 
 
 # This Pictures Is For Start Message Picture, You Can Add Multiple By Giving One Space Between Each.
-PICS = (environ.get('PICS', 'https://graph.org/file/e20b5fdaf217252964202.jpg')).split()
+PICS = (environ.get('PICS', 'https://envs.sh/o-r.jpg')).split()
 
 
 # Admins & Users
