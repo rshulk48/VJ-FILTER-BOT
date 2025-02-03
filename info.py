@@ -88,8 +88,8 @@ PUBLIC_FILE_CHANNEL = environ.get('PUBLIC_FILE_CHANNEL', '') # Public Channel Us
 
 
 # Links
-GRP_LNK = environ.get('GRP_LNK', 'https://t.me/+SDBvltduRtkMGM1')
-CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/hd_moves488')
+GRP_LNK = environ.get('GRP_LNK', 'https://t.me/+SDBvltduRtkyMGM1')
+CHNL_LNK = environ.get('CHNL_LNK', 'https://t.me/hd_movies488')
 SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'https://t.me/+SDBvltdutkyMGM1') # Support Chat Link Without https:// or @
 OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/randeep_singh48')
 
