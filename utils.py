@@ -631,7 +631,41 @@ async def send_all(bot, userid, files, ident, chat_id, user_name, query):
         await query.answer('Hᴇʏ, Sᴛᴀʀᴛ Bᴏᴛ Fɪʀsᴛ Aɴᴅ Cʟɪᴄᴋ Sᴇɴᴅ Aʟʟ', show_alert=True)
     except Exception:
         await query.answer('Hᴇʏ, Sᴛᴀʀᴛ Bᴏᴛ Fɪʀsᴛ Aɴᴅ Cʟɪᴄᴋ Sᴇɴᴅ Aʟʟ', show_alert=True)
-        
+
+def build_file_entry(file):
+    fname = file['file_name'].lower()
+    
+    # Audio Language Badges Detection
+    audios = []
+    if "hindi" in fname or "hin" in fname:
+        audios.append("HIN")
+    if "english" in fname or "eng" in fname:
+        audios.append("ENG")
+    if "tamil" in fname or "tam" in fname:
+        audios.append("TAM")
+    if "telugu" in fname or "tel" in fname:
+        audios.append("TEL")
+    if "malayalam" in fname or "mal" in fname:
+        audios.append("MAL")
+    if "kannada" in fname or "kan" in fname:
+        audios.append("KAN")
+    audio_badge = f" [🎧 {'+'.join(audios)}]" if audios else ""
+
+    # Quality / Resolution Badges Detection
+    qualities = []
+    if "4k" in fname or "2160p" in fname:
+        qualities.append("4K")
+    elif "1080p" in fname:
+        qualities.append("1080p")
+    elif "720p" in fname:
+        qualities.append("720p")
+    elif "480p" in fname:
+        qualities.append("480p")
+    quality_badge = f" [📺 {qualities[0]}]" if qualities else ""
+
+    clean_name = ' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))
+    return f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}]{audio_badge}{quality_badge} {clean_name}\n\n</a></b>"
+
 async def get_cap(settings, remaining_seconds, files, query, total_results, search):
     if settings["imdb"]:
         IMDB_CAP = temp.IMDB_CAP.get(query.from_user.id)
@@ -639,7 +673,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
             cap = IMDB_CAP
             cap += "<b>\n\n<u>🍿 Your Movie Files 👇</u></b>\n\n"
             for file in files:
-                cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))}\n\n</a></b>"
+                cap += build_file_entry(file)
         else:
             imdb = await get_poster(search, file=(files[0])["file_name"]) if settings["imdb"] else None
             if imdb:
@@ -678,17 +712,17 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                 )
                 cap += "<b>\n\n<u>🍿 Your Movie Files 👇</u></b>\n\n"
                 for file in files:
-                    cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))}\n\n</a></b>"
+                    cap += build_file_entry(file)
             else:
                 cap = f"<b>Tʜᴇ Rᴇꜱᴜʟᴛꜱ Fᴏʀ ☞ {search}\n\nRᴇǫᴜᴇsᴛᴇᴅ Bʏ ☞ {query.from_user.mention}\n\nʀᴇsᴜʟᴛ sʜᴏᴡ ɪɴ ☞ {remaining_seconds} sᴇᴄᴏɴᴅs\n\nᴘᴏᴡᴇʀᴇᴅ ʙʏ ☞ : {query.message.chat.title}\n\n⚠️ ᴀꜰᴛᴇʀ 5 ᴍɪɴᴜᴛᴇꜱ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ᴡɪʟʟ ʙᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ 🗑️\n\n</b>"
                 cap += "<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
                 for file in files:
-                    cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))}\n\n</a></b>"
+                    cap += build_file_entry(file)
     else:
         cap = f"<b>Tʜᴇ Rᴇꜱᴜʟᴛꜱ Fᴏʀ ☞ {search}\n\nRᴇǫᴜᴇsᴛᴇᴅ Bʏ ☞ {query.from_user.mention}\n\nʀᴇsᴜʟᴛ sʜᴏᴡ ɪɴ ☞ {remaining_seconds} sᴇᴄᴏɴᴅs\n\nᴘᴏᴡᴇʀᴇᴅ ʙʏ ☞ : {query.message.chat.title} \n\n⚠️ ᴀꜰᴛᴇʀ 5 ᴍɪɴᴜᴛᴇꜱ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ᴡɪʟʟ ʙᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ 🗑️\n\n</b>"
         cap += "<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
         for file in files:
-            cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))}\n\n</a></b>"
+            cap += build_file_entry(file)
     return cap
 
 async def get_seconds(time_string):
