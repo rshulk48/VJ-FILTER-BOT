@@ -2,16 +2,14 @@
 # Subscribe YouTube Channel For Amazing Bot @Tech_VJ
 # Ask Doubt on telegram @KingVJ01
 
-import logging, asyncio, os, re, random, pytz, aiohttp, requests, string, json, http.client
+import logging, asyncio, os, re, random, pytz, aiohttp, requests, string, json, urllib.parse
 from info import *
-# from imdb import Cinemagoer 
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram import enums
 from pyrogram.errors import *
-from typing import Union
+from typing import Union, List
 from Script import script
 from datetime import datetime, date
-from typing import List
 from database.users_chats_db import db
 from database.join_reqs import JoinReqs
 from bs4 import BeautifulSoup
@@ -37,7 +35,7 @@ class temp(object):
     BANNED_CHATS = []
     ME = None
     BOT = None
-    CURRENT=int(os.environ.get("SKIP", 2))
+    CURRENT = int(os.environ.get("SKIP", 2))
     CANCEL = False
     MELCOW = {}
     U_NAME = None
@@ -58,7 +56,7 @@ async def pub_is_subscribed(bot, query, channel):
             btn.append(
                 [InlineKeyboardButton(f'Join {chat.title}', url=chat.invite_link)]
             )
-        except Exception as e:
+        except Exception:
             pass
     return btn
 
@@ -94,40 +92,47 @@ async def is_subscribed(bot, query):
         return False
 
 async def get_poster(query, bulk=False, id=False, file=None):
+    if not query:
+        return None
     try:
-        query = (query.strip()).lower()
-        title = query
-        year = re.findall(r'[1-2]\d{3}$', query, re.IGNORECASE)
-        if year:
-            year = list_to_str(year[:1]).strip()
-            title = (query.replace(year, "")).strip()
-        elif file is not None:
-            year_match = re.findall(r'[1-2]\d{3}', file, re.IGNORECASE)
-            year = list_to_str(year_match[:1]).strip() if year_match else None
-        else:
-            year = None
+        query_str = str(query).strip()
+        year_match = re.findall(r'[1-2]\d{3}', query_str)
+        year = year_match[-1] if year_match else None
+        
+        # Clean query string for title searching
+        title = re.sub(r'[1-2]\d{3}', '', query_str)
+        title = re.sub(r'[^a-zA-Z0-9\s]', ' ', title).strip()
+        clean_title = urllib.parse.quote_plus(title)
 
-        clean_title = re.sub(r'[^a-zA-Z0-9\s]', '', title).strip()
+        # Working public key with fallback
+        api_keys = ["b6c22f03", "b6f70f90"]
+        data = None
 
-        omdb_url = f"https://www.omdbapi.com/?t={clean_title}&apikey=b6f70f90"
-        if year:
-            omdb_url += f"&y={year}"
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(omdb_url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
-                if resp.status != 200:
-                    return None
-                data = await resp.json()
-
-        if data.get("Response") != "True":
+        for key in api_keys:
+            base_url = f"https://www.omdbapi.com/?t={clean_title}&apikey={key}"
             if year:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(f"https://www.omdbapi.com/?t={clean_title}&apikey=b6f70f90", timeout=aiohttp.ClientTimeout(total=5)) as resp:
-                        data = await resp.json()
-                if data.get("Response") != "True":
-                    return None
+                url = f"{base_url}&y={year}"
             else:
-                return None
+                url = base_url
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=7)) as resp:
+                    if resp.status == 200:
+                        res = await resp.json()
+                        if res.get("Response") == "True":
+                            data = res
+                            break
+                        elif year:
+                            # Retry without year parameter if exact year match failed
+                            async with session.get(base_url, timeout=aiohttp.ClientTimeout(total=7)) as retry_resp:
+                                if retry_resp.status == 200:
+                                    retry_res = await retry_resp.json()
+                                    if retry_res.get("Response") == "True":
+                                        data = retry_res
+                                        break
+
+        if not data or data.get("Response") != "True":
+            return None
 
         poster_url = data.get("Poster")
         if not poster_url or poster_url == "N/A":
@@ -142,7 +147,7 @@ async def get_poster(query, bulk=False, id=False, file=None):
         return {
             'title': data.get('Title', title),
             'votes': data.get('imdbVotes', 'N/A'),
-            'aka': 'N/A',
+            'aka': data.get('Title', 'N/A'),
             'seasons': data.get('totalSeasons', 'N/A'),
             'box_office': data.get('BoxOffice', 'N/A'),
             'localized_title': data.get('Title', title),
@@ -159,7 +164,7 @@ async def get_poster(query, bulk=False, id=False, file=None):
             'composer': 'N/A',
             'cinematographer': 'N/A',
             'music_team': 'N/A',
-            'distributors': 'N/A',
+            'distributors': data.get('Production', 'N/A'),
             'release_date': data.get('Released', 'N/A'),
             'year': data.get('Year', 'N/A'),
             'genres': data.get('Genre', 'N/A'),
@@ -172,13 +177,12 @@ async def get_poster(query, bulk=False, id=False, file=None):
         logger.error(f"Poster Fetch Error: {e}")
         return None
 
-
 async def broadcast_messages(user_id, message):
     try:
         await message.copy(chat_id=user_id)
         return True, "Success"
     except FloodWait as e:
-        await asyncio.sleep(e.x)
+        await asyncio.sleep(e.value)
         return await broadcast_messages(user_id, message)
     except InputUserDeactivated:
         await db.delete_user(int(user_id))
@@ -192,7 +196,7 @@ async def broadcast_messages(user_id, message):
         await db.delete_user(int(user_id))
         logging.info(f"{user_id} - PeerIdInvalid")
         return False, "Error"
-    except Exception as e:
+    except Exception:
         return False, "Error"
 
 async def broadcast_messages_group(chat_id, message):
@@ -204,22 +208,22 @@ async def broadcast_messages_group(chat_id, message):
             pass
         return True, "Success"
     except FloodWait as e:
-        await asyncio.sleep(e.x)
+        await asyncio.sleep(e.value)
         return await broadcast_messages_group(chat_id, message)
-    except Exception as e:
+    except Exception:
         return False, "Error"
     
 async def search_gagala(text):
     usr_agent = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
         'Chrome/61.0.3163.100 Safari/537.36'
-        }
+    }
     text = text.replace(" ", '+')
     url = f'https://www.google.com/search?q={text}'
     response = requests.get(url, headers=usr_agent)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
-    titles = soup.find_all( 'h3' )
+    titles = soup.find_all('h3')
     return [title.getText() for title in titles]
 
 async def get_settings(group_id):
@@ -273,13 +277,11 @@ def extract_user(message: Message) -> Union[int, str]:
             len(message.entities) > 1 and
             message.entities[1].type == enums.MessageEntityType.TEXT_MENTION
         ):
-           
             required_entity = message.entities[1]
             user_id = required_entity.user.id
             user_first_name = required_entity.user.first_name
         else:
             user_id = message.command[1]
-            # don't want to make a request -_-
             user_first_name = user_id
         try:
             user_id = int(user_id)
@@ -322,7 +324,7 @@ def last_online(from_user):
 def split_quotes(text: str) -> List:
     if not any(text.startswith(char) for char in START_CHAR):
         return text.split(None, 1)
-    counter = 1  # ignore first char -> is some kind of quote
+    counter = 1
     while counter < len(text):
         if text[counter] == "\\":
             counter += 1
@@ -332,9 +334,7 @@ def split_quotes(text: str) -> List:
     else:
         return text.split(None, 1)
 
-    # 1 to avoid starting quote, and counter is exclusive so avoids ending
     key = remove_escapes(text[1:counter].strip())
-    # index will be in range, or `else` would have been executed and returned
     rest = text[counter + 1:].strip()
     if not key:
         key = text[0] + text[0]
@@ -349,19 +349,16 @@ def gfilterparser(text, keyword):
     i = 0
     alerts = []
     for match in BTN_URL_REGEX.finditer(text):
-        # Check if btnurl is escaped
         n_escapes = 0
         to_check = match.start(1) - 1
         while to_check > 0 and text[to_check] == "\\":
             n_escapes += 1
             to_check -= 1
 
-        # if even, not escaped -> create button
         if n_escapes % 2 == 0:
             note_data += text[prev:match.start(1)]
             prev = match.end(1)
             if match.group(3) == "buttonalert":
-                # create a thruple with button label, url, and newline status
                 if bool(match.group(5)) and buttons:
                     buttons[-1].append(InlineKeyboardButton(
                         text=match.group(2),
@@ -384,7 +381,6 @@ def gfilterparser(text, keyword):
                     text=match.group(2),
                     url=match.group(4).replace(" ", "")
                 )])
-
         else:
             note_data += text[prev:to_check]
             prev = match.start(1) - 1
@@ -405,19 +401,16 @@ def parser(text, keyword):
     i = 0
     alerts = []
     for match in BTN_URL_REGEX.finditer(text):
-        # Check if btnurl is escaped
         n_escapes = 0
         to_check = match.start(1) - 1
         while to_check > 0 and text[to_check] == "\\":
             n_escapes += 1
             to_check -= 1
 
-        # if even, not escaped -> create button
         if n_escapes % 2 == 0:
             note_data += text[prev:match.start(1)]
             prev = match.end(1)
             if match.group(3) == "buttonalert":
-                # create a thruple with button label, url, and newline status
                 if bool(match.group(5)) and buttons:
                     buttons[-1].append(InlineKeyboardButton(
                         text=match.group(2),
@@ -440,7 +433,6 @@ def parser(text, keyword):
                     text=match.group(2),
                     url=match.group(4).replace(" ", "")
                 )])
-
         else:
             note_data += text[prev:to_check]
             prev = match.start(1) - 1
@@ -476,15 +468,13 @@ def humanbytes(size):
         n += 1
     return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
 
-
-
 async def get_clone_shortlink(link, url, api):
     shortzy = Shortzy(api_key=api, base_site=url)
     link = await shortzy.convert(link)
     return link
                            
 async def get_shortlink(chat_id, link):
-    settings = await get_settings(chat_id) #fetching settings for group
+    settings = await get_settings(chat_id)
     if 'shortlink' in settings.keys():
         URL = settings['shortlink']
         API = settings['shortlink_api']
@@ -514,7 +504,7 @@ async def get_shortlink(chat_id, link):
         return link
     
 async def get_tutorial(chat_id):
-    settings = await get_settings(chat_id) #fetching settings for group
+    settings = await get_settings(chat_id)
     return settings['tutorial']
         
 async def get_verify_shorted_link(link, url, api):
@@ -576,7 +566,6 @@ async def verify_user(bot, userid, token):
         await db.add_user(user.id, user.first_name)
         await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(user.id, user.mention))
     TOKENS[user.id] = {token: True}
-    tz = pytz.timezone('Asia/Kolkata')
     today = date.today()
     VERIFIED[user.id] = str(today)
 
@@ -585,13 +574,12 @@ async def check_verification(bot, userid):
     if not await db.is_user_exist(user.id):
         await db.add_user(user.id, user.first_name)
         await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(user.id, user.mention))
-    tz = pytz.timezone('Asia/Kolkata')
     today = date.today()
     if user.id in VERIFIED.keys():
         EXP = VERIFIED[user.id]
         years, month, day = EXP.split('-')
         comp = date(int(years), int(month), int(day))
-        if comp<today:
+        if comp < today:
             return False
         else:
             return True
@@ -603,7 +591,7 @@ async def send_all(bot, userid, files, ident, chat_id, user_name, query):
     if 'is_shortlink' in settings.keys():
         ENABLE_SHORTLINK = settings['is_shortlink']
     else:
-        await save_group_settings(message.chat.id, 'is_shortlink', False)
+        await save_group_settings(chat_id, 'is_shortlink', False)
         ENABLE_SHORTLINK = False
     try:
         if ENABLE_SHORTLINK:
@@ -647,7 +635,7 @@ async def send_all(bot, userid, files, ident, chat_id, user_name, query):
         await query.answer('Uɴʙʟᴏᴄᴋ ᴛʜᴇ ʙᴏᴛ ᴍᴀʜɴ !', show_alert=True)
     except PeerIdInvalid:
         await query.answer('Hᴇʏ, Sᴛᴀʀᴛ Bᴏᴛ Fɪʀsᴛ Aɴᴅ Cʟɪᴄᴋ Sᴇɴᴅ Aʟʟ', show_alert=True)
-    except Exception as e:
+    except Exception:
         await query.answer('Hᴇʏ, Sᴛᴀʀᴛ Bᴏᴛ Fɪʀsᴛ Aɴᴅ Cʟɪᴄᴋ Sᴇɴᴅ Aʟʟ', show_alert=True)
         
 async def get_cap(settings, remaining_seconds, files, query, total_results, search):
@@ -655,7 +643,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
         IMDB_CAP = temp.IMDB_CAP.get(query.from_user.id)
         if IMDB_CAP:
             cap = IMDB_CAP
-            cap+="<b>\n\n<u>🍿 Your Movie Files 👇</u></b>\n\n"
+            cap += "<b>\n\n<u>🍿 Your Movie Files 👇</u></b>\n\n"
             for file in files:
                 cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))}\n\n</a></b>"
         else:
@@ -691,23 +679,24 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                     plot=imdb['plot'],
                     rating=imdb['rating'],
                     url=imdb['url'],
+                    remaining_seconds=remaining_seconds,
+                    message=query.message,
                     **locals()
                 )
-                cap+="<b>\n\n<u>🍿 Your Movie Files 👇</u></b>\n\n"
+                cap += "<b>\n\n<u>🍿 Your Movie Files 👇</u></b>\n\n"
                 for file in files:
                     cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))}\n\n</a></b>"
             else:
                 cap = f"<b>Tʜᴇ Rᴇꜱᴜʟᴛꜱ Fᴏʀ ☞ {search}\n\nRᴇǫᴜᴇsᴛᴇᴅ Bʏ ☞ {query.from_user.mention}\n\nʀᴇsᴜʟᴛ sʜᴏᴡ ɪɴ ☞ {remaining_seconds} sᴇᴄᴏɴᴅs\n\nᴘᴏᴡᴇʀᴇᴅ ʙʏ ☞ : {query.message.chat.title}\n\n⚠️ ᴀꜰᴛᴇʀ 5 ᴍɪɴᴜᴛᴇꜱ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ᴡɪʟʟ ʙᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ 🗑️\n\n</b>"
-                cap+="<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
+                cap += "<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
                 for file in files:
                     cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))}\n\n</a></b>"
     else:
         cap = f"<b>Tʜᴇ Rᴇꜱᴜʟᴛꜱ Fᴏʀ ☞ {search}\n\nRᴇǫᴜᴇsᴛᴇᴅ Bʏ ☞ {query.from_user.mention}\n\nʀᴇsᴜʟᴛ sʜᴏᴡ ɪɴ ☞ {remaining_seconds} sᴇᴄᴏɴᴅs\n\nᴘᴏᴡᴇʀᴇᴅ ʙʏ ☞ : {query.message.chat.title} \n\n⚠️ ᴀꜰᴛᴇʀ 5 ᴍɪɴᴜᴛᴇꜱ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ᴡɪʟʟ ʙᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ 🗑️\n\n</b>"
-        cap+="<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
+        cap += "<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
         for file in files:
             cap += f"<b>📁 <a href='https://telegram.me/{temp.U_NAME}?start=files_{file['file_id']}'>[{get_size(file['file_size'])}] {' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file['file_name'].split()))}\n\n</a></b>"
     return cap
-
 
 async def get_seconds(time_string):
     def extract_value_and_unit(ts):
