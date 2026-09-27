@@ -4,7 +4,7 @@
 
 import logging, asyncio, os, re, random, pytz, aiohttp, requests, string, json, http.client
 from info import *
-from imdb import Cinemagoer 
+# from imdb import Cinemagoer 
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram import enums
 from pyrogram.errors import *
@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 join_db = JoinReqs
 BTN_URL_REGEX = re.compile(r"(\[([^\[]+?)\]\((buttonurl|buttonalert):(?:/{0,2})(.+?)(:same)?\))")
 
-imdb = Cinemagoer('https') 
+imdb = None 
 TOKENS = {}
 VERIFIED = {}
 BANNED = {}
@@ -94,84 +94,84 @@ async def is_subscribed(bot, query):
         return False
 
 async def get_poster(query, bulk=False, id=False, file=None):
-    if not id:
+    try:
         query = (query.strip()).lower()
         title = query
         year = re.findall(r'[1-2]\d{3}$', query, re.IGNORECASE)
         if year:
-            year = list_to_str(year[:1])
+            year = list_to_str(year[:1]).strip()
             title = (query.replace(year, "")).strip()
         elif file is not None:
-            year = re.findall(r'[1-2]\d{3}', file, re.IGNORECASE)
-            if year:
-                year = list_to_str(year[:1]) 
+            year_match = re.findall(r'[1-2]\d{3}', file, re.IGNORECASE)
+            year = list_to_str(year_match[:1]).strip() if year_match else None
         else:
             year = None
-        movieid = imdb.search_movie(title.lower(), results=10)
-        if not movieid:
-            return None
-        if year:
-            filtered=list(filter(lambda k: str(k.get('year')) == str(year), movieid))
-            if not filtered:
-                filtered = movieid
-        else:
-            filtered = movieid
-        movieid=list(filter(lambda k: k.get('kind') in ['movie', 'tv series'], filtered))
-        if not movieid:
-            movieid = filtered
-        if bulk:
-            return movieid
-        movieid = movieid[0].movieID
-    else:
-        movieid = query
-    movie = imdb.get_movie(movieid)
-    if not movie:
-        return None
-    if movie.get("original air date"):
-        date = movie["original air date"]
-    elif movie.get("year"):
-        date = movie.get("year")
-    else:
-        date = "N/A"
-    plot = ""
-    if not LONG_IMDB_DESCRIPTION:
-        plot = movie.get('plot')
-        if plot and len(plot) > 0:
-            plot = plot[0]
-    else:
-        plot = movie.get('plot outline')
-    if plot and len(plot) > 800:
-        plot = plot[0:800] + "..."
 
-    return {
-        'title': movie.get('title'),
-        'votes': movie.get('votes'),
-        "aka": list_to_str(movie.get("akas")),
-        "seasons": movie.get("number of seasons"),
-        "box_office": movie.get('box office'),
-        'localized_title': movie.get('localized title'),
-        'kind': movie.get("kind"),
-        "imdb_id": f"tt{movie.get('imdbID')}",
-        "cast": list_to_str(movie.get("cast")),
-        "runtime": list_to_str(movie.get("runtimes")),
-        "countries": list_to_str(movie.get("countries")),
-        "certificates": list_to_str(movie.get("certificates")),
-        "languages": list_to_str(movie.get("languages")),
-        "director": list_to_str(movie.get("director")),
-        "writer":list_to_str(movie.get("writer")),
-        "producer":list_to_str(movie.get("producer")),
-        "composer":list_to_str(movie.get("composer")) ,
-        "cinematographer":list_to_str(movie.get("cinematographer")),
-        "music_team": list_to_str(movie.get("music department")),
-        "distributors": list_to_str(movie.get("distributors")),
-        'release_date': date,
-        'year': movie.get('year'),
-        'genres': list_to_str(movie.get("genres")),
-        'poster': movie.get('full-size cover url'),
-        'plot': plot,
-        'rating': str(movie.get("rating")),
-        'url':f'https://www.imdb.com/title/tt{movieid}'
-    }
+        clean_title = re.sub(r'[^a-zA-Z0-9\s]', '', title).strip()
+
+        omdb_url = f"https://www.omdbapi.com/?t={clean_title}&apikey=b6f70f90"
+        if year:
+            omdb_url += f"&y={year}"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(omdb_url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                if resp.status != 200:
+                    return None
+                data = await resp.json()
+
+        if data.get("Response") != "True":
+            if year:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(f"https://www.omdbapi.com/?t={clean_title}&apikey=b6f70f90", timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                        data = await resp.json()
+                if data.get("Response") != "True":
+                    return None
+            else:
+                return None
+
+        poster_url = data.get("Poster")
+        if not poster_url or poster_url == "N/A":
+            poster_url = None
+
+        plot = data.get("Plot", "N/A")
+        if not LONG_IMDB_DESCRIPTION and plot != "N/A" and len(plot) > 200:
+            plot = plot[:200] + "..."
+
+        imdb_id = data.get("imdbID", "")
+
+        return {
+            'title': data.get('Title', title),
+            'votes': data.get('imdbVotes', 'N/A'),
+            'aka': 'N/A',
+            'seasons': data.get('totalSeasons', 'N/A'),
+            'box_office': data.get('BoxOffice', 'N/A'),
+            'localized_title': data.get('Title', title),
+            'kind': data.get('Type', 'movie'),
+            'imdb_id': imdb_id,
+            'cast': data.get('Actors', 'N/A'),
+            'runtime': data.get('Runtime', 'N/A'),
+            'countries': data.get('Country', 'N/A'),
+            'certificates': data.get('Rated', 'N/A'),
+            'languages': data.get('Language', 'N/A'),
+            'director': data.get('Director', 'N/A'),
+            'writer': data.get('Writer', 'N/A'),
+            'producer': 'N/A',
+            'composer': 'N/A',
+            'cinematographer': 'N/A',
+            'music_team': 'N/A',
+            'distributors': 'N/A',
+            'release_date': data.get('Released', 'N/A'),
+            'year': data.get('Year', 'N/A'),
+            'genres': data.get('Genre', 'N/A'),
+            'poster': poster_url,
+            'plot': plot,
+            'rating': str(data.get('imdbRating', 'N/A')),
+            'url': f'https://www.imdb.com/title/{imdb_id}' if imdb_id else f'https://www.imdb.com/find?q={clean_title}'
+        }
+    except Exception as e:
+        logger.error(f"Poster Fetch Error: {e}")
+        return None
+
 
 async def broadcast_messages(user_id, message):
     try:
