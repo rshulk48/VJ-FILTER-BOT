@@ -38,7 +38,7 @@ AUTH_CHANNEL_LINK = environ.get('AUTH_CHANNEL_LINK', 'https://t.me/hd_movies488'
 # Channel 2
 auth_channel_2 = environ.get('AUTH_CHANNEL_2', '-1004447317958')
 AUTH_CHANNEL_2 = int(auth_channel_2) if auth_channel_2 and id_pattern.search(auth_channel_2) else -1004447317958
-AUTH_CHANNEL_LINK_2 = environ.get('AUTH_CHANNEL_LINK_2', 'https://t.me/+SDBvltduRtkyMGM1')
+AUTH_CHANNEL_LINK_2 = environ.get('AUTH_CHANNEL_LINK_2', 'https://t.me/+BzHv9X5iCgIzODZl')
 
 # Tutorial Picture For Force-Subscribe Gate
 FSUB_PIC = environ.get('FSUB_PIC', 'https://graph.org/file/6543fa0274934ae77b889.jpg')
