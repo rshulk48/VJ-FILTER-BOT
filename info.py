@@ -41,7 +41,7 @@ AUTH_CHANNEL_2 = int(auth_channel_2) if auth_channel_2 and id_pattern.search(aut
 AUTH_CHANNEL_LINK_2 = environ.get('AUTH_CHANNEL_LINK_2', 'https://t.me/+BzHv9X5iCgIzODZl')
 
 # Tutorial Picture For Force-Subscribe Gate
-FSUB_PIC = environ.get('FSUB_PIC', 'https://graph.org/file/6543fa0274934ae77b889.jpg')
+FSUB_PIC = environ.get('FSUB_PIC', 'https://i.ibb.co/L5hY8mN/image.png')
 # ---------------------------------------------------------------------------------
 
 # Channels & Groups
