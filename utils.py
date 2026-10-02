@@ -17,7 +17,7 @@ from shortzy import Shortzy
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-join_db = JoinReqs
+join_db = JoinReqs()
 BTN_URL_REGEX = re.compile(r"(\[([^\[]+?)\]\((buttonurl|buttonalert):(?:/{0,2})(.+?)(:same)?\))")
 
 imdb = None 
@@ -51,18 +51,27 @@ async def check_all_sub(bot, user_id: int):
     Works for both normal channel joins and request-to-join channels.
     """
     channels = [AUTH_CHANNEL, AUTH_CHANNEL_2]
+    
+    # Check if user has an active join request stored in the database
+    has_join_req = False
+    if REQUEST_TO_JOIN_MODE and join_db.isActive():
+        try:
+            user_data = await join_db.get_user(user_id)
+            if user_data:
+                has_join_req = True
+        except Exception as e:
+            logger.error(f"JoinReqs DB lookup error: {e}")
+
     for ch in channels:
         if not ch:
             continue
-        if REQUEST_TO_JOIN_MODE and join_db().isActive():
-            try:
-                user = await join_db().get_user(user_id)
-                if user and user.get("user_id") == user_id:
-                    continue
-            except Exception:
-                pass
+
+        # If user sent a join request and it is logged, accept for that channel
+        if REQUEST_TO_JOIN_MODE and has_join_req:
+            continue
+
         try:
-            member = await bot.get_chat_member(ch, user_id)
+            member = await bot.get_chat_member(int(ch), user_id)
             if member.status in [enums.ChatMemberStatus.BANNED, enums.ChatMemberStatus.LEFT]:
                 return False
         except UserNotParticipant:
@@ -70,6 +79,7 @@ async def check_all_sub(bot, user_id: int):
         except Exception as e:
             logger.error(f"Error checking channel {ch} for user {user_id}: {e}")
             pass
+
     return True
 
 async def pub_is_subscribed(bot, query, channel):
@@ -90,10 +100,10 @@ async def is_subscribed(bot, query):
     user_id = query.from_user.id if query.from_user else query
     if not AUTH_CHANNEL:
         return True
-    if REQUEST_TO_JOIN_MODE == True and join_db().isActive():
+    if REQUEST_TO_JOIN_MODE == True and join_db.isActive():
         try:
-            user = await join_db().get_user(user_id)
-            if user and user["user_id"] == user_id:
+            user = await join_db.get_user(user_id)
+            if user and user.get("user_id") == user_id:
                 return True
             else:
                 try:
@@ -752,6 +762,10 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
         cap += "<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
         for file in files:
             cap += build_file_entry(file)
+
+    # Prevent Telegram 1024-character caption crash
+    if len(cap) > 1020:
+        cap = cap[:1015] + "..."
     return cap
 
 async def get_seconds(time_string):
