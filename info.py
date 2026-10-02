@@ -33,7 +33,7 @@ TRY_AGAIN_BTN = bool(environ.get('TRY_AGAIN_BTN', False))
 # Channel 1
 auth_channel = environ.get('AUTH_CHANNEL', '-1002005740832')
 AUTH_CHANNEL = int(auth_channel) if auth_channel and id_pattern.search(auth_channel) else -1003667837023
-AUTH_CHANNEL_LINK = environ.get('AUTH_CHANNEL_LINK', 'https://t.me/hd_movies488')
+AUTH_CHANNEL_LINK = environ.get('AUTH_CHANNEL_LINK', 'https://t.me/+OJ8oZZhXcFZjZWY1')
 
 # Channel 2
 auth_channel_2 = environ.get('AUTH_CHANNEL_2', '-1004447317958')
