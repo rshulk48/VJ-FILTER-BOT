@@ -17,7 +17,7 @@ from shortzy import Shortzy
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-join_db = JoinReqs()
+join_db = JoinReqs
 BTN_URL_REGEX = re.compile(r"(\[([^\[]+?)\]\((buttonurl|buttonalert):(?:/{0,2})(.+?)(:same)?\))")
 
 imdb = None 
@@ -45,51 +45,6 @@ class temp(object):
     SETTINGS = {}
     IMDB_CAP = {}
 
-async def check_all_sub(bot, user_id: int):
-    """
-    Checks subscription for both channels independently:
-    - Channel 1 (AUTH_CHANNEL): User must be an active member.
-    - Channel 2 (AUTH_CHANNEL_2): User must be an active member OR have a recorded join request in join_db.
-    """
-    # 1. Verify Channel 1 (Public / Normal Join)
-    if AUTH_CHANNEL:
-        try:
-            member_1 = await bot.get_chat_member(int(AUTH_CHANNEL), user_id)
-            if member_1.status in [enums.ChatMemberStatus.BANNED, enums.ChatMemberStatus.LEFT]:
-                return False
-        except UserNotParticipant:
-            return False
-        except Exception as e:
-            logger.error(f"Error checking AUTH_CHANNEL for user {user_id}: {e}")
-            return False
-
-    # 2. Verify Channel 2 (Request To Join / Private)
-    if AUTH_CHANNEL_2:
-        is_in_ch2 = False
-        
-        # Check if the user is already an accepted member
-        try:
-            member_2 = await bot.get_chat_member(int(AUTH_CHANNEL_2), user_id)
-            if member_2.status not in [enums.ChatMemberStatus.BANNED, enums.ChatMemberStatus.LEFT]:
-                is_in_ch2 = True
-        except UserNotParticipant:
-            is_in_ch2 = False
-        except Exception as e:
-            logger.error(f"Error checking AUTH_CHANNEL_2 membership: {e}")
-
-        # If not an accepted member, check if they sent a Join Request in DB
-        if not is_in_ch2 and REQUEST_TO_JOIN_MODE and join_db.isActive():
-            try:
-                user_req = await join_db.get_user(user_id)
-                if user_req:
-                    is_in_ch2 = True
-            except Exception as e:
-                logger.error(f"Error checking JoinReqs DB for user {user_id}: {e}")
-
-        if not is_in_ch2:
-            return False
-
-    return True
 
 async def pub_is_subscribed(bot, query, channel):
     btn = []
@@ -106,17 +61,14 @@ async def pub_is_subscribed(bot, query, channel):
     return btn
 
 async def is_subscribed(bot, query):
-    user_id = query.from_user.id if query.from_user else query
-    if not AUTH_CHANNEL:
-        return True
-    if REQUEST_TO_JOIN_MODE == True and join_db.isActive():
+    if REQUEST_TO_JOIN_MODE == True and join_db().isActive():
         try:
-            user = await join_db.get_user(user_id)
-            if user and user.get("user_id") == user_id:
+            user = await join_db().get_user(query.from_user.id)
+            if user and user["user_id"] == query.from_user.id:
                 return True
             else:
                 try:
-                    user_data = await bot.get_chat_member(AUTH_CHANNEL, user_id)
+                    user_data = await bot.get_chat_member(AUTH_CHANNEL, query.from_user.id)
                 except UserNotParticipant:
                     pass
                 except Exception as e:
@@ -129,7 +81,7 @@ async def is_subscribed(bot, query):
             return False
     else:
         try:
-            user = await bot.get_chat_member(AUTH_CHANNEL, user_id)
+            user = await bot.get_chat_member(AUTH_CHANNEL, query.from_user.id)
         except UserNotParticipant:
             pass
         except Exception as e:
@@ -767,14 +719,10 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                 for file in files:
                     cap += build_file_entry(file)
     else:
-        cap = f"<b>Tʜᴇ Rᴇꜱᴜʟᴛꜱ Fᴏʀ ☞ {search}\n\nRᴇǫᴜᴇsᴛᴇᴅ Bʏ ☞ {query.from_user.mention}\n\nʀᴇsᴜʟᴛ sʜᴏᴡ ɪɴ ☞ {remaining_seconds} sᴇᴄᴏɴᴅs\n\nᴘᴏᴡᴇʀᴇᴅ ʙʏ ☞ : {query.message.chat.title}\n\n⚠️ ᴀꜰᴛᴇʀ 5 ᴍɪɴᴜᴛᴇꜱ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ᴡɪʟʟ ʙᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ 🗑️\n\n</b>"
+        cap = f"<b>Tʜᴇ Rᴇꜱᴜʟᴛꜱ Fᴏʀ ☞ {search}\n\nRᴇǫᴜᴇsᴛᴇᴅ Bʏ ☞ {query.from_user.mention}\n\nʀᴇsᴜʟᴛ sʜᴏᴡ ɪɴ ☞ {remaining_seconds} sᴇᴄᴏɴᴅs\n\nᴘᴏᴡᴇʀᴇᴅ ʙʏ ☞ : {query.message.chat.title} \n\n⚠️ ᴀꜰᴛᴇʀ 5 ᴍɪɴᴜᴛᴇꜱ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ᴡɪʟʟ ʙᴇ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ 🗑️\n\n</b>"
         cap += "<b><u>🍿 Your Movie Files 👇</u></b>\n\n"
         for file in files:
             cap += build_file_entry(file)
-
-    # Prevent Telegram 1024-character caption crash
-    if len(cap) > 1020:
-        cap = cap[:1015] + "..."
     return cap
 
 async def get_seconds(time_string):
