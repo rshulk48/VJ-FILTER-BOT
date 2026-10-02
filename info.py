@@ -31,7 +31,7 @@ REQUEST_TO_JOIN_MODE = bool(environ.get('REQUEST_TO_JOIN_MODE', False))
 TRY_AGAIN_BTN = bool(environ.get('TRY_AGAIN_BTN', False))
 
 # Channel 1
-auth_channel = environ.get('AUTH_CHANNEL', '-1003667837023')
+auth_channel = environ.get('AUTH_CHANNEL', '-1002005740832')
 AUTH_CHANNEL = int(auth_channel) if auth_channel and id_pattern.search(auth_channel) else -1003667837023
 AUTH_CHANNEL_LINK = environ.get('AUTH_CHANNEL_LINK', 'https://t.me/hd_movies488')
 
