@@ -52,7 +52,46 @@ Hᴇʀᴇ Is Tʜᴇ Hᴇʟᴘ Fᴏʀ Mʏ Cᴏᴍᴍᴀɴᴅs.</b>"""
 
 ʙᴜʏ ᴘᴀɪᴅ ᴘʟᴀɴ ʙʏ - /plan</b>"""
 
+    # ----------------- MULTI-CHANNEL FSUB TEMPLATES -----------------
+    FSUB_TXT = """<b>English</b>
+  ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ᴊᴏɪɴ ᴏᴜʀ ᴀʟʟ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟꜱ ꜰᴏʀ ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ ᴍᴏᴠɪᴇꜱ. ᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟꜱ, ᴘʟᴇᴀꜱᴇ ᴄʟɪᴄᴋ ᴏɴ (ᴄᴏɴᴛɪɴᴜᴇ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ ♂️) ʙᴜᴛᴛᴏɴ.
 
+<b>हिंदी</b>
+  मूवी डाउनलोड करने के लिए आपको हमारे सभी अपडेट चैनल से जुड़ना होगा। चैनल से जुड़ने के बाद (Continue To Download ♂️) बटन पर क्लिक करें।
+
+▶ <u>ᴛʀᴀɴꜱʟᴀᴛᴇ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ɪɴ :-</u>
+<a href="https://t.me/{bot_username}?start=trans_ta_{file_id}">தமிழ்</a> || <a href="https://t.me/{bot_username}?start=trans_te_{file_id}">తెలుగు</a> || <a href="https://t.me/{bot_username}?start=trans_ml_{file_id}">മലയാളം</a>
+
+▶ <u>ᴘʟᴇᴀꜱᴇ ꜱᴜʙꜱᴄʀɪʙᴇ ᴀʟʟ ᴄʜᴀɴɴᴇʟꜱ :-</u>
+  👇        👇        👇        👇"""
+
+    FSUB_TA = """<b>தமிழ்</b>
+  திரைப்படங்களைப் பதிவிறக்க நீங்கள் எங்கள் அனைத்து சேனல்களிலும் இணைய வேண்டும். சேனல்களில் இணைந்த பிறகு (Continue To Download ♂️) பட்டனைக் கிளிக் செய்யவும்.
+
+▶ <u>ᴛʀᴀɴꜱʟᴀᴛᴇ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ɪɴ :-</u>
+<a href="https://t.me/{bot_username}?start=trans_en_{file_id}">English</a> || <a href="https://t.me/{bot_username}?start=trans_te_{file_id}">తెలుగు</a> || <a href="https://t.me/{bot_username}?start=trans_ml_{file_id}">മലയാളം</a>
+
+▶ <u>ᴘʟᴇᴀꜱᴇ ꜱᴜʙꜱᴄʀɪʙᴇ ᴀʟʟ ᴄʜᴀɴɴᴇʟꜱ :-</u>
+  👇        👇        👇        👇"""
+
+    FSUB_TE = """<b>తెలుగు</b>
+  సినిమాలను డౌన్‌లోడ్ చేసుకోవడానికి మీరు మా అన్ని అప్‌డేట్ ఛానెల్‌లలో చేరాలి. ఛానెల్‌లలో చేరిన తర్వాత (Continue To Download ♂️) బటన్‌పై క్లిక్ చేయండి.
+
+▶ <u>ᴛʀᴀɴꜱʟᴀᴛᴇ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ɪɴ :-</u>
+<a href="https://t.me/{bot_username}?start=trans_en_{file_id}">English</a> || <a href="https://t.me/{bot_username}?start=trans_ta_{file_id}">தமிழ்</a> || <a href="https://t.me/{bot_username}?start=trans_ml_{file_id}">മലയാളം</a>
+
+▶ <u>ᴘʟᴇᴀꜱᴇ ꜱᴜʙꜱᴄʀɪʙᴇ ᴀʟʟ ᴄʜᴀɴɴᴇʟꜱ :-</u>
+  👇        👇        👇        👇"""
+
+    FSUB_ML = """<b>മലയാളം</b>
+  സിനിമകൾ ഡൗൺലോഡ് ചെയ്യുന്നതിനായി ഞങ്ങളുടെ എല്ലാ അപ്ഡേറ്റ് ചാനലുകളിലും ജോയിൻ ചെയ്യുക. ശേഷം (Continue To Download ♂️) ബട്ടണിൽ ക്ലിക്ക് ചെയ്യുക.
+
+▶ <u>ᴛʀᴀɴꜱʟᴀᴛᴇ ᴛʜɪꜱ ᴍᴇꜱꜱᴀɢᴇ ɪɴ :-</u>
+<a href="https://t.me/{bot_username}?start=trans_en_{file_id}">English</a> || <a href="https://t.me/{bot_username}?start=trans_ta_{file_id}">தமிழ்</a> || <a href="https://t.me/{bot_username}?start=trans_te_{file_id}">తెలుగు</a>
+
+▶ <u>ᴘʟᴇᴀꜱᴇ ꜱᴜʙꜱᴄʀɪʙᴇ ᴀʟʟ ᴄʜᴀɴɴᴇʟꜱ :-</u>
+  👇        👇        👇        👇"""
+    # ----------------------------------------------------------------
 
     MANUELFILTER_TXT = """ʜᴇʟᴘ: <b>ꜰɪʟᴛᴇʀꜱ</b>
 - ꜰɪʟᴛᴇʀ ɪꜱ ᴀ ꜰᴇᴀᴛᴜʀᴇ ᴡᴇʀᴇ ᴜꜱᴇʀꜱ ᴄᴀɴ ꜱᴇᴛ ᴀᴜᴛᴏᴍᴀᴛᴇᴅ ʀᴇᴘʟɪᴇꜱ ꜰᴏʀ ᴀ ᴘᴀʀᴛɪᴄᴜʟᴀʀ ᴋᴇʏᴡᴏʀᴅ ᴀɴᴅ ɪ ᴡɪʟʟ ʀᴇꜱᴘᴏɴᴅ ᴡʜᴇɴᴇᴠᴇʀ ᴀ ᴋᴇʏᴡᴏʀᴅ ɪꜱ ꜰᴏᴜɴᴅ ɪɴ ᴛʜᴇ ᴍᴇꜱꜱᴀɢᴇ
@@ -65,10 +104,6 @@ Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:
 • /filters - <code>ʟɪꜱᴛ ᴀʟʟ ᴛʜᴇ ꜰɪʟᴛᴇʀꜱ ᴏꜰ ᴀ ᴄʜᴀᴛ</code>
 • /del - <code>ᴅᴇʟᴇᴛᴇ ᴀ ꜱᴘᴇᴄɪꜰɪᴄ ꜰɪʟᴛᴇʀ ɪɴ ᴀ ᴄʜᴀᴛ</code>
 • /delall - <code>ᴅᴇʟᴇᴛᴇ ᴛʜᴇ ᴡʜᴏʟᴇ ꜰɪʟᴛᴇʀꜱ ɪɴ ᴀ ᴄʜᴀᴛ (ᴄʜᴀᴛ ᴏᴡɴᴇʀ ᴏɴʟʏ)</code>"""
-
-    # Don't Remove Credit @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
-# Ask Doubt on telegram @KingVJ01
 
     BUTTON_TXT = """ʜᴇʟᴘ: <b>ʙᴜᴛᴛᴏɴꜱ</b>
 - ᴛʜɪꜱ ʙᴏᴛ ꜱᴜᴘᴘᴏʀᴛꜱ ʙᴏᴛʜ ᴜʀʟ ᴀɴᴅ ᴀʟᴇʀᴛ ɪɴʟɪɴᴇ ʙᴜᴛᴛᴏɴꜱ.
@@ -103,18 +138,13 @@ Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:
 • /disconnect  - <code>ᴅɪꜱᴄᴏɴɴᴇᴄᴛ ꜰʀᴏᴍ ᴀ ᴄʜᴀᴛ</code>
 • /connections - <code>ʟɪꜱᴛ ᴀʟʟ ʏᴏᴜʀ ᴄᴏɴɴᴇᴄᴛɪᴏɴꜱ</code>"""
 
-    # Don't Remove Credit @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-
     EXTRAMOD_TXT = """ʜᴇʟᴘ: Exᴛʀᴀ Mᴏᴅᴜʟᴇs
 <b>ɴᴏᴛᴇ:</b>
  <b>✯ Maintained by : <a href={}>Owner</a></b>
   
  <b>✯ Join here : <a href={}>Update Channel</a></b> 
   
- ./id - <code>ɢᴇᴛ ɪᴅ ᴏꜰ ᴀ ꜱᴘᴇᴄɪꜰɪᴇᴅ ᴜꜱᴇʀ.</ 
- code> 
+ ./id - <code>ɢᴇᴛ ɪᴅ ᴏꜰ ᴀ ꜱᴘᴇᴄɪꜰɪᴇᴅ ᴜꜱᴇʀ.</code> 
   
  ./info  - <code>ɢᴇᴛ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴀ ᴜꜱᴇʀ.</code> 
   
@@ -127,7 +157,6 @@ Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:
  ./video - This command usage any YouTube video download hd [<code>example /video https://youtu.be/example...</code>]
 
 ./font - This command usage stylish and cool font generator [<code>example /font hi</code>]"""
-
 
     ADMIN_TXT = """ʜᴇʟᴘ: Aᴅᴍɪɴ Mᴏᴅs
 <b>ɴᴏᴛᴇ:</b>
@@ -358,7 +387,6 @@ Aᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅs:
  /audiobook: ʀᴇᴩʟy ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ ᴛᴏ ᴀɴy ᴩᴅꜰ ᴛᴏ ɢᴇɴᴇʀᴀᴛᴇ ᴛʜᴇ ᴀᴜᴅɪᴏ 
 </b>""" 
   
- 
     PINGS_TXT = """<b>ᴘɪɴɢ ᴛᴇꜱᴛɪɴɢ:ʜᴇʟᴘꜱ ʏᴏᴜ ᴛᴏ ᴋɴᴏᴡ ʏᴏᴜʀ ᴘɪɴɢ🪄 
   
  ᴄᴏᴍᴍᴀɴᴅꜱ: 
@@ -677,13 +705,13 @@ Also your tutorial will be Added Your Group..."""
  ಟೆಲಿಗ್ರಾಮ್ ಮೂಲಕ ಹಣ ಗಳಿಸಲು ನೀವು 1 ಗುಂಪನ್ನು ಹೊಂದಿರಬೇಕು.
  ನೀವು ಗುಂಪನ್ನು ಹೊಂದಿದ್ದರೆ, ನಮ್ಮ ಬೋಟ್ ಅನ್ನು ನಿಮ್ಮ ಗುಂಪಿಗೆ ಸೇರಿಸುವ ಮೂಲಕ ನೀವು ಹಣವನ್ನು ಗಳಿಸಬಹುದು.
 
- ನಿಮ್ಮ ಗುಂಪಿನಲ್ಲಿ ನೀವು ಹೆಚ್ಚು ಸದಸ್ಯರನ್ನು ಹೊಂದಿದ್ದರೆ, ನಿಮ್ಮ ಆದಾಯವು ಹೆಚ್ಚಾಗುತ್ತದೆ.
+ ನಿಮ್ಮ ಗುಂಪಿನಲ್ಲಿ ನೀವು ಹೆಚ್ಚು ಸದಸ್ಯರನ್ನು ಹೊಂದಿದ್ದರೆ, ನಿಮ್ಮ ಆದాయವು ಹೆಚ್ಚಾಗುತ್ತದೆ.
 
  ಹೇಗೆ ಮತ್ತು ಏನು ಮಾಡಬೇಕು
 
  ಹಂತ 1: ಈ ಫಿಲ್ಟರ್-ಬಾಟ್ ಬೋಟ್ ಅನ್ನು ನಿಮ್ಮ ಗುಂಪಿಗೆ ನಿರ್ವಹಿಸಿ
 
- ಹಂತ 2: ನಿಮ್ಮ ವೆಬ್‌ಸೈಟ್ ಮತ್ತು API ಸೇರಿಸಿ
+ ಹಂತ 2: ನಿಮ್ಮ ವೆಬ್‌ಸైట్ మరియు API ಸೇರಿಸಿ
 
  ಅವಧಿ: /shortlink omegalinks.in 4b392f8eb6ad711fbe58
 
@@ -746,11 +774,3 @@ Example:- /set_caption 📕 File Name: {filename}
     STREAM_TXT = """<b><u>HOW TO GET STREAM AND DOWNLOAD LINK :</u>
 
 /stream - ɢᴇᴛ sᴛʀᴇᴀᴍᴀʙʟᴇ ᴀɴᴅ ᴅᴏᴡɴʟᴏᴀᴅᴀʙʟᴇ ʟɪɴᴋ ᴏғ ᴀɴʏ ғɪʟᴇ</b>"""
-
-
-# Don't Remove Credit @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-
-
-    
