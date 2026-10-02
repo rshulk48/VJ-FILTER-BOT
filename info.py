@@ -27,7 +27,7 @@ LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002127225058'))
 CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002126158360').split()]
 
 # ----------------- Force Subscribe (FSub) Multi-Channel Settings -----------------
-REQUEST_TO_JOIN_MODE = bool(environ.get('REQUEST_TO_JOIN_MODE', False))
+REQUEST_TO_JOIN_MODE = bool(environ.get('REQUEST_TO_JOIN_MODE', True))
 TRY_AGAIN_BTN = bool(environ.get('TRY_AGAIN_BTN', False))
 
 # Channel 1
