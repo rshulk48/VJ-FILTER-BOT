@@ -47,38 +47,47 @@ class temp(object):
 
 async def check_all_sub(bot, user_id: int):
     """
-    Checks if a user is subscribed to both AUTH_CHANNEL and AUTH_CHANNEL_2.
-    Works for both normal channel joins and request-to-join channels.
+    Checks subscription for both channels independently:
+    - Channel 1 (AUTH_CHANNEL): User must be an active member.
+    - Channel 2 (AUTH_CHANNEL_2): User must be an active member OR have a recorded join request in join_db.
     """
-    channels = [AUTH_CHANNEL, AUTH_CHANNEL_2]
-    
-    # Check if user has an active join request stored in the database
-    has_join_req = False
-    if REQUEST_TO_JOIN_MODE and join_db.isActive():
+    # 1. Verify Channel 1 (Public / Normal Join)
+    if AUTH_CHANNEL:
         try:
-            user_data = await join_db.get_user(user_id)
-            if user_data:
-                has_join_req = True
-        except Exception as e:
-            logger.error(f"JoinReqs DB lookup error: {e}")
-
-    for ch in channels:
-        if not ch:
-            continue
-
-        # If user sent a join request and it is logged, accept for that channel
-        if REQUEST_TO_JOIN_MODE and has_join_req:
-            continue
-
-        try:
-            member = await bot.get_chat_member(int(ch), user_id)
-            if member.status in [enums.ChatMemberStatus.BANNED, enums.ChatMemberStatus.LEFT]:
+            member_1 = await bot.get_chat_member(int(AUTH_CHANNEL), user_id)
+            if member_1.status in [enums.ChatMemberStatus.BANNED, enums.ChatMemberStatus.LEFT]:
                 return False
         except UserNotParticipant:
             return False
         except Exception as e:
-            logger.error(f"Error checking channel {ch} for user {user_id}: {e}")
-            pass
+            logger.error(f"Error checking AUTH_CHANNEL for user {user_id}: {e}")
+            return False
+
+    # 2. Verify Channel 2 (Request To Join / Private)
+    if AUTH_CHANNEL_2:
+        is_in_ch2 = False
+        
+        # Check if the user is already an accepted member
+        try:
+            member_2 = await bot.get_chat_member(int(AUTH_CHANNEL_2), user_id)
+            if member_2.status not in [enums.ChatMemberStatus.BANNED, enums.ChatMemberStatus.LEFT]:
+                is_in_ch2 = True
+        except UserNotParticipant:
+            is_in_ch2 = False
+        except Exception as e:
+            logger.error(f"Error checking AUTH_CHANNEL_2 membership: {e}")
+
+        # If not an accepted member, check if they sent a Join Request in DB
+        if not is_in_ch2 and REQUEST_TO_JOIN_MODE and join_db.isActive():
+            try:
+                user_req = await join_db.get_user(user_id)
+                if user_req:
+                    is_in_ch2 = True
+            except Exception as e:
+                logger.error(f"Error checking JoinReqs DB for user {user_id}: {e}")
+
+        if not is_in_ch2:
+            return False
 
     return True
 
