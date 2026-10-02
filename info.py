@@ -26,19 +26,45 @@ AUTH_USERS = (auth_users + ADMINS) if auth_users else []
 LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002127225058'))
 CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002126158360').split()]
 
-# ----------------- Force Subscribe (FSub) Multi-Channel Settings -----------------
+# ----------------- Dynamic Force Subscribe (Multi-Channel FSub) -----------------
 REQUEST_TO_JOIN_MODE = bool(environ.get('REQUEST_TO_JOIN_MODE', True))
 TRY_AGAIN_BTN = bool(environ.get('TRY_AGAIN_BTN', False))
 
-# Channel 1
-auth_channel = environ.get('AUTH_CHANNEL', '-1002005740832')
+# Primary Channels (Backward Compatibility)
+auth_channel = environ.get('AUTH_CHANNEL', '-1003667837023')
 AUTH_CHANNEL = int(auth_channel) if auth_channel and id_pattern.search(auth_channel) else -1003667837023
 AUTH_CHANNEL_LINK = environ.get('AUTH_CHANNEL_LINK', 'https://t.me/+OJ8oZZhXcFZjZWY1')
 
-# Channel 2
 auth_channel_2 = environ.get('AUTH_CHANNEL_2', '-1004447317958')
 AUTH_CHANNEL_2 = int(auth_channel_2) if auth_channel_2 and id_pattern.search(auth_channel_2) else -1004447317958
 AUTH_CHANNEL_LINK_2 = environ.get('AUTH_CHANNEL_LINK_2', 'https://t.me/+BzHv9X5iCgIzODZl')
+
+# Dynamic Multi-Channel List: Add as many channels as you want!
+# id: Channel ID (must start with -100)
+# name: Display name for the button
+# link: Direct invite link or Request-to-Join link
+# is_request: True if "Request to Join / Admin Approval" is ON, False if public/direct join
+FSUB_CHANNELS = [
+    {
+        "id": AUTH_CHANNEL,
+        "name": "Updates Channel 1",
+        "link": AUTH_CHANNEL_LINK,
+        "is_request": False
+    },
+    {
+        "id": AUTH_CHANNEL_2,
+        "name": "Private Channel 2",
+        "link": AUTH_CHANNEL_LINK_2,
+        "is_request": True
+    }
+    # To add a 3rd channel, simply add:
+    # {
+    #     "id": -1002233445566,
+    #     "name": "VIP Channel 3",
+    #     "link": "https://t.me/+your_link_here",
+    #     "is_request": True
+    # }
+]
 
 # Tutorial Picture For Force-Subscribe Gate
 FSUB_PIC = environ.get('FSUB_PIC', 'https://files.catbox.moe/es7e4h.jpg')
